@@ -1,2 +1,2 @@
-# SS13d
-Space Station 13 daemon intended for use with Trotskystation fork of Yogstation
+# libss13d
+IPC library for use with SS13d
