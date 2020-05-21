@@ -27,10 +27,10 @@ void sighandler(int signal, siginfo_t* info, void* ucontext) {
 	if (command_list_head == NULL) {
 		command_list_head = malloc(sizeof(command_list_e));
 		command_list_tail = command_list_head;
-		memset(command_list_tail, 0, sizeof(command_list_e));
 		if (command_list_head == NULL) {
 			return;
 		}
+		memset(command_list_tail, 0, sizeof(command_list_e));
 	}
 	/* If tail (OwO) element data ptr is NULL, copy data directly without
 	 * allocating a new element. This should only happen if queue was
