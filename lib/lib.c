@@ -1,3 +1,17 @@
+/* Copyright 2020 PaX */
+/* This file is part of SS13d (Space Station 13 daemon).
+ * SS13d is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the 
+ * License, or (at your option) any later version.
+ * 
+ * SS13d is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public 
+ * License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public 
+ * License along with SS13d. If not, see <https://www.gnu.org/licenses/>. */
 #define MAXSTRLEN 64
 
 #include <signal.h>
@@ -6,10 +20,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <stdatomic.h>
 
 #include "../shared/command.h"
 #include "../shared/ipc.h"
+static const char* APISTR[][MAXCMDCHARCNT] = {{STRCMDINULL}, {STRCMDIREPLYADDRASSN},
+{STRCMDSHUTDOWN}, {STRCMDRESTART}, {STRCMDSERVUPDATE}, {STRCMDTESTMERGE}};
+static const unsigned int CMDCNT = sizeof(APISTR) / sizeof(APISTR[0]);
 /* Element of queue of commands from SS13d to execute. */
 struct command_queue_e {
 	unsigned int command;
@@ -100,25 +116,49 @@ char* raise_caller_sig(char* command_str, char* option_str) {
 	return "0";
 }
 
-/* Copy first command in queue to buf.
- * Return vals: "0" -> Success.
- * 				"1" -> Failure. */
-char* pollcommand(char* buf) {
+/* Return ptr to first command in queue. If none, returns ptr to empty 
+ * string. */
+char* pollcommand() {
 	if (command_q_head == NULL) {
-		return "1";
+		return "";
 	}
-	snprintf(buf, sizeof(char) * MAXSTRLEN, "%u", command_q_head->command);
-	return "0";
+	char* command = malloc(sizeof(char)*MAXSTRLEN);
+	if (command == NULL) {
+		return "";
+	}
+	if (command_q_head->command > CMDCNT-1) {
+		strcpy(command, "");
+		return command;
+	}
+	strcpy(command, *APISTR[command_q_head->command]);
+	return command;
 }
 
+/* Return optional string from first command in queue. If none, returns
+ * empty string. */
 char* pollcommandstr(void) {
-	
+	if (command_q_head->option_str == NULL) {
+		return "";
+	}
+	char* option_str = malloc(sizeof(char)*MAXSTRLEN);
+	if (option_str == NULL) {
+		return "";
+	}
+	strcpy(option_str, command_q_head->option_str);
+	return option_str;
 }
 
 /* Clear the first command in queue and free memory. SS13 must call this
  * after retrieving a command or after retrieving a command and a
  * command option str. */
-void freecmd(void) {
+void freecmd(char* command, char* option_str) {
+	if (command != NULL) {
+		free(command);
+	}
+	if (option_str != NULL) {
+		free(option_str);
+	}
+	
 	/* Mask SIGUSR1 so we avoid a data race with sighandler(). */
 	sigset_t* sigusr1mask = malloc(sizeof(sigset_t));
 	if (sigusr1mask == NULL) {
