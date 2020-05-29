@@ -1,4 +1,4 @@
-/* Copyright 2020 PaX */
+/* Copyright 2020 PaX. */
 /* This file is part of the SS13d (Space Station 13 daemon).
  * SS13d is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
