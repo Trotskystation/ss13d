@@ -1,5 +1,5 @@
 /* Copyright 2020 PaX */
-/* This file is part of SS13d (Space Station 13 daemon).
+/* This file is part of the SS13d (Space Station 13 daemon).
  * SS13d is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the 
@@ -23,9 +23,13 @@
 
 #include "../shared/command.h"
 #include "../shared/ipc.h"
+
+/* The commands this library can handle */
 static const char* APISTR[][MAXCMDCHARCNT] = {{STRCMDINULL}, {STRCMDIREPLYADDRASSN},
-{STRCMDSHUTDOWN}, {STRCMDRESTART}, {STRCMDSERVUPDATE}, {STRCMDTESTMERGE}};
+{STRCMDSHUTDOWN}, {STRCMDRESTART}, {STRCMDSERVUPDATE}, {STRCMDTESTMERGE},
+{STRCMDPING}};
 static const unsigned int CMDCNT = sizeof(APISTR) / sizeof(APISTR[0]);
+
 /* Element of queue of commands from SS13d to execute. */
 struct command_queue_e {
 	unsigned int command;
@@ -119,6 +123,7 @@ char* raise_caller_sig(char* command_str, char* option_str) {
 /* Return ptr to first command in queue. If none, returns ptr to empty 
  * string. */
 char* pollcommand() {
+	raise_caller_sig(STRCMDPING, NULL);
 	if (command_q_head == NULL) {
 		return "";
 	}
@@ -137,6 +142,7 @@ char* pollcommand() {
 /* Return optional string from first command in queue. If none, returns
  * empty string. */
 char* pollcommandstr(void) {
+	raise_caller_sig(STRCMDPING, NULL);
 	if (command_q_head->option_str == NULL) {
 		return "";
 	}

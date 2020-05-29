@@ -1,5 +1,5 @@
 /* Copyright 2020 PaX */
-/* This file is part of SS13d (Space Station 13 daemon).
+/* This file is part of the SS13d (Space Station 13 daemon).
  * SS13d is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the 
@@ -50,3 +50,11 @@
  * SS13: No effect. */
 #define CMDTESTMERGE 5
 #define STRCMDTESTMERGE "5"
+
+/* On every poll for commands libSS13d will send this command so SS13d 
+ * knows it hasn't crashed. If SS13 recieves this from SS13d, it will
+ * announce a world message the server was restarted after a crash.
+ * SS13d: Resets server crash restart timer.
+ * SS13: Print world crash message. */
+#define CMDPING 6
+#define STRCMDPING "6"
