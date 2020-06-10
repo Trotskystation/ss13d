@@ -24,10 +24,10 @@
 #include "../shared/command.h"
 #include "../shared/ipc.h"
 
-/* The commands this library can handle */
+/* The commands this library can handle in order. */
 static const char* APISTR[][MAXCMDCHARCNT] = {{STRCMDINULL}, {STRCMDIREPLYADDRASSN},
 {STRCMDSHUTDOWN}, {STRCMDRESTART}, {STRCMDSERVUPDATE}, {STRCMDTESTMERGE},
-{STRCMDPING}};
+{STRCMDPING}, {STRCMDERR}};
 static const unsigned int CMDCNT = sizeof(APISTR) / sizeof(APISTR[0]);
 
 /* Element of queue of commands from SS13d to execute. */

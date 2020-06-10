@@ -59,3 +59,7 @@
  * SS13: Print world crash message. */
 #define CMDPING 6
 #define STRCMDPING "6"
+
+/* Error command with error message option string. */
+#define CMDERR 7
+#define STRCMDERR "6"
