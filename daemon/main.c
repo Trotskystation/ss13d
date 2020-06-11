@@ -14,41 +14,47 @@
  * License along with SS13d. If not, see <https://www.gnu.org/licenses/>. */
 
  #define INITLINECNT 64
+ #define AROOTPATH "aroot/"
+ #define BROOTPATH "broot/"
+ #define CFGROOTPATH "cfg/"
  
- #include <fcntl.h>
+ #include <dirent.h>
  #include <stdio.h>
  #include <stdlib.h>
  #include <string.h>
- #include <sys/types.h>
  #include <sys/stat.h>
+ #include <sys/types.h>
  #include <unistd.h>
  
 struct argstruct {
-	char* configpath;
 	char* serverroot;
 	char* aroot;
 	char* broot;
+	char* cfgroot;
+	char* repo;
 };
 
 void usage(void);
-int parseconfig(FILE* configfd, struct argstruct* returnstruct);
+DIR* openorinitdir(char* path);
+char* concatpath(char* str1, char* str2);
 
 int main(int argc, char *argv[]) {
 	struct argstruct* args = malloc(sizeof(args));
-	if (argstruct == NULL) {
+	if (args == NULL) {
 		fprintf(stderr, "argstruct malloc() failed.\n");
 		return EXIT_FAILURE;
 	}
 	
 	opterr = 0;
 	
-	while ((int arg = getopt(argc, argv, "+hc:")) != -1) {
+	int arg;
+	while ((arg = getopt(argc, argv, "+hr:")) != -1) {
 		switch (arg) {
 			case 'h':
 				usage();
 				return EXIT_SUCCESS;
-			case 'c':
-				args->configpath = optarg;
+			case 'r':
+				args->serverroot = optarg;
 				break;
 			default:
 				fprintf(stderr, "Invalid argument.\n");
@@ -56,64 +62,48 @@ int main(int argc, char *argv[]) {
 				break;
 			}
 		}
-
-	if (access(argstruct->configpath, F_OK) != 0) {
-		fprintf(stderr, "Configuration file specified does not exist.\n");
-		return EXIT_FAILURE;
+	
+	DIR* root = openorinitdir(args->serverroot);
+	if (root == NULL) {
+		fprintf(stderr, "Could not open directory.");
 	}
-	FILE* config = fopen(argstruct->configpath, "r");
-	if (config == -1) {
-		fprintf(stderr, "Could not open configuration file.\n");
-		return EXIT_FAILURE;
+	char* arootstr = malloc(strlen(args->serverroot) + strlen(AROOTPATH) + 1);
+	char* brootstr = malloc(strlen(args->serverroot) + strlen(BROOTPATH) + 1);
+	char* cfgrootstr = malloc(strlen(args->serverroot) + strlen(CFGROOTPATH) + 1);
+	if (arootstr == NULL || brootstr == NULL || cfgrootstr == NULL) {
+		fprintf(stderr, "malloc() path strings failed.");
 	}
 	
-	int configerr = parseconfig(config, args);
-	if (configerr != 0) {
-		fprintf(stderr, "Failed to parse configuration file.\n");
-		return EXIT_FAILURE;
-	}
 }
 
-int parseconfig(FILE* configfd, struct argstruct* returnstruct) {
-	unsigned int linebufcnt = INITLINECNT;
-	char*** lineptr[] = malloc(sizeof(char*) * linebufcnt);
-	if (lineptr == NULL) {
-		fprintf(stderr, "Could not malloc line array.\n");
-		return 1;
-	}
-	memset(lineptr, 0, sizeof(char*) * linebufcnt));
-	unsigned int linei = 0;
-	size_t linesize = 0;
-	
-	while (linesize >= 0) {
-		/* This is a great addition to a libc and I'm happy it's in POSIX. */
-		getline(lineptr[linei], &linesize, configfd);
-		
-		if (linebufcnt == linepos) {
-			lineptr = realloc(lineptr, sizeof(char*) * linebufcnt + INITLINECNT);
-			if (lineptr == NULL) {
-				fprintf(stderr, "Ran out of space in line array and could not realloc.\n");
-				return 1;
-			}
-			memset(lineptr + sizeof(char*) * linebufcnt, 0);
-			linebufcnt = linebufcnt + INITLINECNT;
+DIR* openorinitdir(char* path) {
+	DIR* pathfd = opendir(path);
+	if (pathfd == NULL) {
+		if (mkdir(path, 0711) == -1) {
+			return NULL;
 		}
-		linei++;
-	}
-	
-	for(unsigned int i=0; i>=linei; i++) {
-		if (lineptr[i][0] == '#') {
-			continue;
+		DIR* pathfd = opendir(path);
+		if (pathfd == NULL) {
+			return NULL;
 		}
-		char* token = strtok(lineptr[i], " ");
-		/* May switch to a enum or something in the future. */
-		if (strcmp(token, "SERVERROOT") {
-			
-		
 	}
-	return 0;
+	return pathfd;
 }
+
+char* concatpath(char* basepath, char* concatent) {
+	size_t basepathlen = strlen(basepath);
+	size_t concatentlen = strlen(concatent);
+	if (basepath[basepathlen-1] == '/') {
+		basepath = strcat(basepath, concatent);
+	} else {
+		basepath = strcat(basepath, "/");
+		basepath = strcat(result, concatent);
+	}
+	return basepath;
+}
+
 void usage(void) {
 	printf("-h: Print usage.\
-			-c: Specify configuration file location.");
+-r: Specify server root directory. Use absolute paths.\
+-g: Specify server git repository.");
 }
