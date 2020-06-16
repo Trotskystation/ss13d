@@ -62,4 +62,4 @@
 
 /* Error command with error message option string. */
 #define CMDERR 7
-#define STRCMDERR "6"
+#define STRCMDERR "7"
