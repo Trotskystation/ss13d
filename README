@@ -1,5 +1,4 @@
-# SS13d
-This is the Space Station 13 daemon and IPC library intended for use with the Trotskystation fork of Yogstation on Linux.
+This is the Space Station 13 daemon (SS13d) and IPC library intended for use with the Trotskystation fork of Yogstation on Linux.
 
 Under ./daemon you will find the code for the daemon component of SS13d.
 
