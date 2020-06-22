@@ -166,19 +166,7 @@ void freecmd(char* command, char* option_str) {
 	}
 	
 	/* Mask SIGUSR1 so we avoid a data race with sighandler(). */
-	sigset_t* sigusr1mask = malloc(sizeof(sigset_t));
-	if (sigusr1mask == NULL) {
-		return;
-	}
-	if (sigemptyset(sigusr1mask) != 0) {
-		return;
-	}
-	if (sigaddset(sigusr1mask, SA_SIGINFO) != 0) {
-		return;
-	}
-	if (sigprocmask(SIG_BLOCK, sigusr1mask, NULL) != 0) {
-		return;
-	}
+	set_mask_handler(true);
 	
 	if (command_q_head == NULL) {
 		return;
@@ -193,10 +181,32 @@ void freecmd(char* command, char* option_str) {
 	command_q_tail = NULL;
 	
 	/* Handle SIGUSR1 again. */
-	sigprocmask(SIG_UNBLOCK, sigusr1mask, NULL);
-	free(sigusr1mask);
+	sig_mask_handler(false);
 }
 
+/* Masks or unmasks SIGUSR1 to avoid races with sighandler(). */
+void set_mask_handler(bool mask) {
+	sigset_t* sigusr1mask = malloc(sizeof(sigset_t));
+	if (sigusr1mask == NULL) {
+		return;
+	}
+	if (sigemptyset(sigusr1mask) != 0) {
+		free(sigusr1mask);
+		return;
+	}
+	if (sigaddset(sigusr1mask, SIGUSR1) != 0) {
+		free(sigusr1mask);
+		return;
+	}
+	if (mask) {
+		sigprocmask(SIG_BLOCK, sigusr1mask, NULL)
+		free(sigusr1mask);
+	} else {
+		sigprocmask(SIG_UNBLOCK, sigusr1mask, NULL);
+		free(sigusr1mask);
+	}
+	return;
+}
 /* Register command signal handler. 
  * Return vals: "0" -> Success.
  * 				"1" -> Failure. */

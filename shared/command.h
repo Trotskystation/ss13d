@@ -35,6 +35,7 @@
 
 /* Server restart.
  * SS13d: SS13d will send CMDSHUTDOWN back and queue restart for when DD exits.
+ * 		  Also performs any scheduled actions on server shutdown.
  * SS13: No effect. */
 #define CMDRESTART 3
 #define STRCMDRESTART "3"

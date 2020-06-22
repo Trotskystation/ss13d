@@ -1,0 +1,13 @@
+We have 1 build dependency:
+libgit2, a highly portable git library available on many Unix-likes.
+
+We have 3 runtime dependencies:
+libgit2.
+OpenSSL, a portable cryptography library. Many systems already have this installed.
+PCRE, a portable Perl compatible regex library. Many systems already have this installed.
+
+If you cannot download the dependencies from repositories or build them
+we provide binaries under Trotskystation/ss13d-deps. We will have support 
+for this in the Makefile. To be documented.
+
+We do not provide OpenSSL or PCRE.

@@ -74,8 +74,7 @@ int main(int argc, char *argv[]) {
 				args->repo = optarg;
 				break;
 			default:
-				fprintf(stderr, "Invalid argument. \"-u\" for usage information.");
-				return EXIT_FAILURE;
+				exit_error("Invalid argument. \"-u\" for usage information.");
 				break;
 			}
 		}
@@ -89,11 +88,15 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	
+	if (args->repo == NULL) {
+		exit_error("Git repository was not specified. I can't start or init a server that isn't specified!.");
+	}
+	
 	if (getuid() == 0) {
 		syslog(LOG_WARNING, "Warning: Running as root!");
 	}
 	
-	if (args-serverroot != NULL) {
+	if (args->serverroot != NULL) {
 		DIR* root = openorinitdir(args->serverroot);
 		if (root == NULL) {
 			exit_error( "Could not open directory.");
